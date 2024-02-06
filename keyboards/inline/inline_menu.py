@@ -23,12 +23,6 @@ async def car_menu(car_list):
     return menu
 
 
-async def payment_types_btn():
-    menu = InlineKeyboardMarkup(row_width=1)
-    menu.insert(InlineKeyboardButton(text='Naqd🫰', callback_data='cash'))
-    menu.insert(InlineKeyboardButton(text='Plastik karta💳', callback_data='plastic'))
-    menu.insert(InlineKeyboardButton(text="Pul o'tkazish💵", callback_data='transfer'))
-    return menu
 
 
 async def payment_btn():
@@ -78,7 +72,8 @@ async def admin_btn():
          InlineKeyboardButton(text="delete", callback_data='delete')]])
     return menu
 
-async def product(quantity=None):
+
+async def product(day_id=None, quantity=None):
     menu = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text='➖', callback_data='minus'),
@@ -86,8 +81,16 @@ async def product(quantity=None):
             InlineKeyboardButton(text='➕', callback_data='plus')
         ],
         [
-            InlineKeyboardButton(text='order', callback_data='order')
+            InlineKeyboardButton(text='order', callback_data=day_id)
         ]
 
     ])
     return menu
+
+
+async def payment_types_btn():
+    menu = InlineKeyboardMarkup(row_width=1)
+    menu.insert(InlineKeyboardButton(text='Naqd🫰', callback_data='cash'))
+    menu.insert(InlineKeyboardButton(text="Pul o'tkazish💵", callback_data='transfer'))
+    return menu
+

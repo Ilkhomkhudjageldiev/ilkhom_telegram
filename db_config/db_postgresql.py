@@ -67,6 +67,7 @@ class DataBase:
                 product_name TEXT NOT NULL,
                 product_photo TEXT,
                 product_price TEXT NOT NULL,
+                product_description TEXT,
                 subcategory_id INTEGER NOT NULL,
                 FOREIGN KEY(subcategory_id) REFERENCES Days(id) ON DELETE CASCADE
                     )
@@ -124,16 +125,40 @@ class DataBase:
 """
         return await self.execute(sql, day_code, fetch=True)
 
-    async def insert_product_data(self, product_name, product_photo, product_price, subcategory_id):
+    async def get_day_id(self, day_code):
         sql = """
-            INSERT INTO Products(product_name, product_photo, product_price, subcategory_id)
-            VALUES ($1, $2, $3, $4)
+            SELECT id FROM Days  
+            WHERE day_code = $1 
 """
-        await self.execute(sql, product_name, product_photo, product_price, subcategory_id, execute=True)
+        return await self.execute(sql, day_code, fetchval=True)
 
-    async def insert_customer_info_order(self, car_type, weight, car_quantity, source_address, destination_address, payment_type, who_pay, receiver_phone, load_time, comments, user_id):
+    async def get_product_order(self, day_id):
         sql = """
-            INSERT INTO Customers(car_type, weight, car_quantity, source_address, destination_address, payment_type, who_pay, receiver_phone, load_time, comments, user_id)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+            SELECT * FROM Products  
+            WHERE subcategory_id = (
+            SELECT id FROM Days
+            WHERE id = $1
+            )     
 """
-        await self.execute(sql, car_type, weight, car_quantity, source_address, destination_address, payment_type, who_pay, receiver_phone, load_time, comments, user_id, execute=True)
+        return await self.execute(sql, day_id, fetch=True)
+
+    async def get_day_type(self, day_id):
+        sql = """
+            SELECT day_code FROM Days  
+            WHERE id = $1
+"""
+        return await self.execute(sql, int(day_id), fetchval=True)
+
+    async def insert_product_data(self, product_name, product_photo, product_price, product_description, subcategory_id):
+        sql = """
+            INSERT INTO Products(product_name, product_photo, product_price, product_description, subcategory_id)
+            VALUES ($1, $2, $3, $4, $5)
+"""
+        await self.execute(sql, product_name, product_photo, product_price, product_description, subcategory_id, execute=True)
+
+    async def insert_customer_info_order(self, day_type, user_id, payment_type, product_name, product_quantity, product_price, product_total_price, comments):
+        sql = """
+            INSERT INTO OrderItem(day_type, user_id, payment_type, product_name, product_quantity, product_price, product_total_price, comments)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+"""
+        await self.execute(sql, day_type, user_id, payment_type, product_name, product_quantity, int(product_price), product_total_price, comments, execute=True)

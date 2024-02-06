@@ -43,11 +43,18 @@ async def update_data(call: CallbackQuery, state: FSMContext):
         product_price = msg.text
         if product_price.isdigit():
             await state.update_data({'product_price': product_price})
-            await msg.answer('subcategory_id')
-            await Register.subcategory_id.set()
+            await msg.answer('product_description')
+            await Register.product_description.set()
         else:
             await msg.answer('product_price')
             await Register.product_price.set()
+
+    @dp.message_handler(state=Register.product_description)
+    async def get_product_desc(msg: Message, state: FSMContext):
+        product_description = msg.text
+        await state.update_data({'product_description': product_description})
+        await msg.answer('day_id')
+        await Register.subcategory_id.set()
 
     @dp.message_handler(state=Register.subcategory_id)
     async def get_subcategory_id(msg: Message, state: FSMContext):
@@ -56,7 +63,7 @@ async def update_data(call: CallbackQuery, state: FSMContext):
             await state.update_data({'subcategory_id': int(subcategory_id)})
             data = await state.get_data()
             await state.finish()
-            await db.insert_product_data(data['product_name'], data['product_photo'], data['product_price'], data['subcategory_id'])
+            await db.insert_product_data(data['product_name'], data['product_photo'], data['product_price'], data['product_description'], data['subcategory_id'])
         else:
             await msg.answer('subcategory_id')
             await Register.subcategory_id.set()
